@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cargar archivo con JavaScript</title>
+    <hta:application id="htaApp" />
+    <script>
+        window.onload = function () {
+            // Función para cargar el contenido del archivo seleccionado
+            document.getElementById("btnCargar").onclick = function () {
+                var input = document.createElement('input');    //Crear un elemento de entrada de archivo
+                input.type = 'file';
+                input.onchange = function (event) { //Escuchar el evento de cambio del elemento de entrada de archivo
+                    var file = event.target.files[0];   //Obtener el archivo seleccionado
+                    var reader = new FileReader();
+                    reader.onload = function (event) {  // Leer el contenido del archivo
+                        var contenido = event.target.result;
+                        document.getElementById("resultado").innerText = contenido; // Insertar el contenido del archivo en un elemento con el ID "resultado"
+                    };
+                    reader.readAsText(file);    // Leer como texto
+                };
+                input.click();  // Hacer clic en el elemento de entrada de archivo de forma programática
+            };
+        };
+
+        function generarCSV() {
+            var file = document.createElement('a');
+            var csv = document.getElementById('resultado').innerText.trim().split('\n');
+            var salida = "";
+            for (var i = 0; i < csv.length; i++) {
+                salida += csv[i]+',a'+ csv[i] + "@unison.mx\n";
+            }
+            file.setAttribute('href', 'data:text/plane;charset=utf-8,'+ encodeURIComponent(salida));
+            file.setAttribute('download', 'participantes.csv');
+            file.style.display = 'none';
+            document.body.appendChild(file);
+            file.click();
+            document.body.removeChild(file);
+        }
+
+        function generarJSON() {
+            var file = document.createElement('a');
+            var sql = document.getElementById('resultado').innerText.trim().split('\n');
+            var salida = [];
+            for (var i = 0; i < sql.length; i++) {
+                salida.push({
+                    expediente: sql[i],
+                    correo: "a" + sql[i] + "@unison.mx"
+                });
+            }
+            var jsonSalida = JSON.stringify(salida, null, 2);
+            file.setAttribute('href', 'data:text/json;charset=utf-8,'+ encodeURIComponent(jsonSalida));
+            file.setAttribute('download', 'participantes.json');
+            file.style.display = 'none';
+            document.body.appendChild(file);
+            file.click();
+            document.body.removeChild(file);
+        }
+
+        function generarSQL() {
+            var file = document.createElement('a');
+            var sql = document.getElementById('resultado').innerText.trim().split('\n');
+            var salida = "CREATE DATABASE IF NOT EXISTS evento;\n USE evento;\nCREATE TABLE IF NOT EXISTS asistentes(expediente INT NOT NULL, correo VARCHAR(255) NOT NULL);\n INSERT INTO asistentes (expediente, correo) VALUES\n";
+            for (var i = 0; i < sql.length; i++) {
+                salida += "('" + sql[i]+"','a"+ sql[i] + "@unison.mx'),\n";
+            }
+            salida = salida.slice(0, -2) + ";";
+            file.setAttribute('href', 'data:text/plane;charset=utf-8,'+ encodeURIComponent(salida));
+            file.setAttribute('download', 'participantes.sql');
+            file.style.display = 'none';
+            document.body.appendChild(file);
+            file.click();
+            document.body.removeChild(file);
+        }
+        function generarXML() {
+            var file = document.createElement('a');
+            var sql = document.getElementById('resultado').innerText.trim().split('\n');
+            var salida = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<asistentes>\n";
+            for (var i = 0; i < sql.length; i++) {
+                salida += "  <asistente>\n    <expediente>" + sql[i] + "</expediente>\n    <correo>a" + sql[i] + "@unison.mx</correo>\n  </asistente>\n";
+            }
+            salida += "</asistentes>";
+            file.setAttribute('href', 'data:text/xml;charset=utf-8,'+ encodeURIComponent(salida));
+            file.setAttribute('download', 'participantes.xml');
+            file.style.display = 'none';
+            document.body.appendChild(file);
+            file.click();
+            document.body.removeChild(file);
+        }
+
+    </script>
+</head>
+
+<body>
+    <h1>Cargar archivo con Ruby</h1>
+    <!-- Botón para cargar el archivo -->
+    <button id="btnCargar">Seleccionar y Cargar Archivo</button>
+    <br><br>
+    <p>Contenido del archivo:</p>
+    <!-- Este elemento mostrará el contenido del archivo -->
+    <pre id="resultado"></pre>
+
+    <button onclick="generarCSV()">CSV</button>
+    <button onclick="generarJSON()">JSON</button>
+    <button onclick="generarSQL()">SQL</button>
+    <button onclick="generarXML()">XML</button>
+</body>
+
+</html>
